@@ -4,246 +4,261 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel do Operador - Empilhadeira</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚛</text></svg>">
     <style>
-        /* Estilos gerais e variáveis */
-        :root {
-            --primary-color: #1a73e8; --secondary-color: #5f6368; --background-color: #f1f3f4;
-            --card-bg: #fff; --border-color: #dadce0; --text-primary: #202124;
-            --text-secondary: #5f6368; --shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 2px 6px 2px rgba(60,64,67,0.15);
-            --status-pendente: #ea4335; --status-andamento: #fbbc04; --status-concluido: #34a853;
-        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Roboto', sans-serif; background-color: var(--background-color); color: var(--text-primary); }
-        
-        /* Layout Principal */
-        .main-container { display: flex; flex-direction: column; height: 100vh; }
-        
-        /* Cabeçalho */
-        .header { background-color: var(--card-bg); padding: 16px 24px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-        .header-title { font-size: 22px; font-weight: 400; display: flex; align-items: center; gap: 12px; }
-        .auto-refresh { display: flex; align-items: center; gap: 8px; color: var(--text-secondary); }
-        .auto-refresh-toggle { width: 40px; height: 20px; background-color: #ccc; border-radius: 10px; position: relative; cursor: pointer; transition: background-color 0.3s; }
-        .auto-refresh-toggle.active { background-color: var(--primary-color); }
-        .auto-refresh-toggle .switch { width: 16px; height: 16px; background-color: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: transform 0.3s; }
-        .auto-refresh-toggle.active .switch { transform: translateX(20px); }
-        
-        /* Contadores e Filtros */
-        .controls-container { background-color: #e8eaed; padding: 16px 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; flex-shrink: 0; }
-        .stats-container, .filters-container { display: flex; gap: 16px; align-items: center; }
-        .stat-item { background-color: var(--card-bg); padding: 8px 16px; border-radius: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; border: 2px solid transparent; }
-        .stat-item .count { background-color: var(--secondary-color); color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; justify-content: center; align-items: center; font-size: 14px; }
-        .stat-pendente { border-color: var(--status-pendente); } .stat-pendente .count { background-color: var(--status-pendente); }
-        .stat-andamento { border-color: var(--status-andamento); } .stat-andamento .count { background-color: var(--status-andamento); }
-        .stat-concluido { border-color: var(--status-concluido); } .stat-concluido .count { background-color: var(--status-concluido); }
-        .filter { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--card-bg); }
-
-        /* Grade de Solicitações */
-        .requests-grid-container { flex-grow: 1; overflow-y: auto; padding: 24px; }
-        .requests-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 24px; }
-        
-        /* Card de Solicitação */
-        .request-card { background-color: var(--card-bg); border-radius: 8px; box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; }
-        .card-header { padding: 16px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid; }
-        .card-header.status-pendente { border-left-color: var(--status-pendente); }
-        .card-header.status-em-andamento { border-left-color: var(--status-andamento); }
-        .card-header.status-concluido { border-left-color: var(--status-concluido); }
-        .card-id { font-size: 18px; font-weight: 500; }
-        .card-timestamp { font-size: 13px; color: var(--text-secondary); }
-        .card-body { padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; flex-grow: 1; }
-        .info-item { display: flex; flex-direction: column; }
-        .info-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; text-transform: uppercase; }
-        .info-value { font-size: 15px; }
-        .info-item.full-width { grid-column: 1 / -1; }
-        .card-footer { background-color: #f8f9fa; padding: 12px 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 12px; }
-        .action-btn { border: none; background-color: transparent; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 500; transition: background-color 0.2s; }
-        .btn-iniciar { background-color: var(--status-andamento); color: var(--text-primary); } .btn-iniciar:hover { background-color: #f9ab00; }
-        .btn-concluir { background-color: var(--status-concluido); color: white; } .btn-concluir:hover { background-color: #1e8e3e; }
-        .card-status-badge { background-color: var(--secondary-color); color: white; padding: 4px 12px; border-radius: 12px; font-size: 13px; display: flex; align-items: center; gap: 6px; }
-        .card-status-badge.status-pendente { background-color: var(--status-pendente); }
-        .card-status-badge.status-em-andamento { background-color: var(--status-andamento); }
-        .card-status-badge.status-concluido { background-color: var(--status-concluido); }
-
-        /* Rodapé */
-        .footer { text-align: center; padding: 16px; background-color: #e8eaed; color: var(--text-secondary); font-size: 14px; border-top: 1px solid var(--border-color); flex-shrink: 0; }
+        :root {
+            --primary-color: #3498db; --secondary-color: #2c3e50; --success-color: #27ae60;
+            --warning-color: #f39c12; --danger-color: #e74c3c; --background-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-background: #ffffff; --text-primary: #2c3e50; --text-secondary: #6c757d;
+            --border-color: #e9ecef; --shadow: 0 2px 10px rgba(0,0,0,0.1); --border-radius: 12px;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; color: var(--text-primary); }
+        .header { background: var(--background-gradient); color: white; padding: 30px; position: relative; overflow: hidden; }
+        .header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="1" fill="white" opacity="0.1"/><circle cx="10" cy="90" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>'); pointer-events: none; }
+        .header-content { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; flex-wrap: wrap; gap: 20px; }
+        .logo { display: flex; align-items: center; gap: 15px; }
+        .logo-icon { font-size: 3rem; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3)); }
+        .logo-text h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 5px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .logo-text p { font-size: 1.1rem; opacity: 0.9; font-weight: 300; }
+        .status-counters { display: flex; gap: 20px; flex-wrap: wrap; }
+        .counter { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); border-radius: var(--border-radius); padding: 20px 30px; text-align: center; min-width: 120px; transition: all 0.3s ease; }
+        .counter:hover { transform: translateY(-2px); background: rgba(255,255,255,0.25); }
+        .counter-number { display: block; font-size: 2.5rem; font-weight: 700; line-height: 1; margin-bottom: 5px; }
+        .counter-label { font-size: 0.9rem; opacity: 0.9; font-weight: 500; }
+        .counter.pending .counter-number { color: #ff6b6b; } .counter.in-progress .counter-number { color: #ffd93d; } .counter.completed .counter-number { color: #6bcf7f; }
+        .filters-section { background: white; padding: 25px; box-shadow: var(--shadow); border-bottom: 1px solid var(--border-color); }
+        .filters-container { max-width: 1200px; margin: 0 auto; display: flex; gap: 25px; align-items: end; flex-wrap: wrap; }
+        .filter-group { display: flex; flex-direction: column; gap: 8px; min-width: 180px; }
+        .filter-group label { font-weight: 600; color: var(--text-primary); font-size: 0.9rem; }
+        .filter-group select, .filter-group input { padding: 12px 15px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem; transition: all 0.3s ease; background: white; }
+        .filter-group select:focus, .filter-group input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1); }
+        .refresh-btn { background: var(--primary-color); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; height: fit-content; }
+        .refresh-btn:hover { background: #2980b9; transform: translateY(-1px); }
+        .main-content { max-width: 1200px; margin: 0 auto; padding: 30px 25px; }
+        .requests-list { display: grid; gap: 20px; }
+        .request-card { background: var(--card-background); border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 25px; box-shadow: var(--shadow); transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .request-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        .request-card.status-pendente { border-left: 5px solid var(--danger-color); }
+        .request-card.status-em-andamento { border-left: 5px solid var(--warning-color); }
+        .request-card.status-concluido { border-left: 5px solid var(--success-color); }
+        .request-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;}
+        .request-id { font-size: 1.2rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 5px; }
+        .request-timestamp { font-size: 0.9rem; color: var(--text-secondary); opacity: 0.8; }
+        .request-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .detail-item { display: flex; flex-direction: column; gap: 5px; word-wrap: break-word; }
+        .detail-item.full-width { grid-column: 1 / -1; }
+        .detail-label { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+        .detail-value { font-size: 1rem; font-weight: 500; color: var(--text-primary); }
+        .priority-tag { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; color: white; }
+        .priority-tag.pendente { background: var(--danger-color); }
+        .priority-tag.em-andamento { background: var(--warning-color); }
+        .priority-tag.concluido { background: var(--success-color); }
+        .card-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; text-decoration: none; }
+        .btn-primary { background: var(--primary-color); color: white; } .btn-primary:hover { background: #2980b9; }
+        .btn-success { background: var(--success-color); color: white; } .btn-success:hover { background: #219a52; }
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); display: none; }
+        .empty-icon { font-size: 4rem; margin-bottom: 20px; opacity: 0.5; }
+        .empty-state h3 { font-size: 1.5rem; margin-bottom: 10px; color: var(--text-primary); }
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(5px); }
+        .loading-spinner { width: 50px; height: 50px; border: 4px solid var(--border-color); border-top: 4px solid var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .api-status { position: fixed; bottom: 20px; right: 20px; background: var(--success-color); color: white; padding: 10px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; z-index: 1000; }
+        .api-status.error { background: var(--danger-color); }
     </style>
 </head>
 <body>
-    <div class="main-container">
-        <header class="header">
-            <h1 class="header-title">📋 Painel do Operador</h1>
-            <div class="auto-refresh">
-                <span>Auto Refresh</span>
-                <div class="auto-refresh-toggle" id="refreshToggle">
-                    <div class="switch"></div>
-                </div>
+    <div id="loadingOverlay" class="loading-overlay"><div class="loading-spinner"></div><p>Carregando dados...</p></div>
+    <div class="api-status" id="apiStatus">🟢 API Conectada</div>
+    
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-icon">🚛</span>
+                <div class="logo-text"><h1>Painel do Operador</h1><p>Sistema Integrado de Atendimento</p></div>
             </div>
-        </header>
-
-        <div class="controls-container">
-            <div class="stats-container">
-                <div class="stat-item stat-pendente"><span class="count" id="count-pendente">0</span> Pendentes</div>
-                <div class="stat-item stat-andamento"><span class="count" id="count-andamento">0</span> Em Andamento</div>
-                <div class="stat-item stat-concluido"><span class="count" id="count-concluido">0</span> Concluídos</div>
-            </div>
-            <div class="filters-container">
-                <select id="statusFilter" class="filter">
-                    <option value="todos">Todos os Status</option>
-                    <option value="pendente">Pendente</option>
-                    <option value="em-andamento">Em Andamento</option>
-                    <option value="concluido">Concluído</option>
-                </select>
-                <input type="date" id="dateFilter" class="filter">
+            <div class="status-counters">
+                <div class="counter pending"><span class="counter-number" id="pendingCount">0</span><span class="counter-label">Pendentes</span></div>
+                <div class="counter in-progress"><span class="counter-number" id="inProgressCount">0</span><span class="counter-label">Em Andamento</span></div>
+                <div class="counter completed"><span class="counter-number" id="completedCount">0</span><span class="counter-label">Concluídos</span></div>
             </div>
         </div>
-
-        <main class="requests-grid-container">
-            <div class="requests-grid" id="requestsGrid">
-                </div>
-        </main>
-
-        <footer class="footer">
-            API Própria Ativa - &copy; 2025
-        </footer>
-    </div>
+    </header>
+    
+    <section class="filters-section">
+        <div class="filters-container">
+            <div class="filter-group"><label for="statusFilter">Filtrar por Status:</label><select id="statusFilter"><option value="todos">Todos</option><option value="pendente">Pendentes</option><option value="em-andamento">Em Andamento</option><option value="concluido">Concluídos</option></select></div>
+            <div class="filter-group"><label for="areaFilter">Área:</label><select id="areaFilter"><option value="todos">Todas as Áreas</option></select></div>
+            <div class="filter-group"><label for="dateFilter">Data:</label><input type="date" id="dateFilter"></div>
+            <button id="refreshBtn" class="refresh-btn">🔄 Atualizar</button>
+        </div>
+    </section>
+    
+    <main class="main-content">
+        <div id="requestsList" class="requests-list"></div>
+        <div id="emptyState" class="empty-state">
+            <div class="empty-icon">📋</div>
+            <h3>Nenhuma solicitação encontrada</h3>
+            <p>Ajuste os filtros ou aguarde novas solicitações</p>
+        </div>
+    </main>
     
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const requestsGrid = document.getElementById('requestsGrid');
-        const statusFilter = document.getElementById('statusFilter');
-        const dateFilter = document.getElementById('dateFilter');
-        const refreshToggle = document.getElementById('refreshToggle');
-
-        let allRequests = [];
-        let autoRefreshInterval;
-
-        // =============================================
-        // INÍCIO DA ATUALIZAÇÃO DA URL DA API
-        // =============================================
+    document.addEventListener('DOMContentLoaded', () => {
         const API_BASE_URL = 'https://painel-v4-api.vercel.app/api';
-        // =============================================
-        // FIM DA ATUALIZAÇÃO
-        // =============================================
+        
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const requestsList = document.getElementById('requestsList');
+        const emptyState = document.getElementById('emptyState');
+        const pendingCountEl = document.getElementById('pendingCount');
+        const inProgressCountEl = document.getElementById('inProgressCount');
+        const completedCountEl = document.getElementById('completedCount');
+        const statusFilter = document.getElementById('statusFilter');
+        const areaFilter = document.getElementById('areaFilter');
+        const dateFilter = document.getElementById('dateFilter');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const apiStatus = document.getElementById('apiStatus');
+        
+        let allRequests = [];
 
-        // Função para buscar e renderizar os dados
-        async function fetchData() {
+        const toggleLoading = (show) => { loadingOverlay.style.display = show ? 'flex' : 'none'; };
+        
+        const updateApiStatus = (isOnline) => {
+            if (isOnline) {
+                apiStatus.textContent = '🟢 API Conectada';
+                apiStatus.className = 'api-status';
+            } else {
+                apiStatus.textContent = '🔴 API Offline';
+                apiStatus.className = 'api-status error';
+            }
+        };
+
+        const fetchData = async () => {
+            toggleLoading(true);
             try {
-                // Busca as solicitações e as estatísticas em paralelo
-                const [requestsResponse, statsResponse] = await Promise.all([
+                const [requestsRes, statsRes] = await Promise.all([
                     fetch(`${API_BASE_URL}/requests`),
                     fetch(`${API_BASE_URL}/requests/stats`)
                 ]);
-
-                if (!requestsResponse.ok) throw new Error('Falha ao carregar as solicitações');
-                if (!statsResponse.ok) throw new Error('Falha ao carregar as estatísticas');
-
-                allRequests = await requestsResponse.json();
-                const stats = await statsResponse.json();
                 
-                renderRequests();
-                updateStats(stats);
+                if (!requestsRes.ok || !statsRes.ok) throw new Error('Erro de rede');
+                
+                allRequests = await requestsRes.json();
+                const stats = await statsRes.json();
 
+                pendingCountEl.textContent = stats.pendente || 0;
+                inProgressCountEl.textContent = stats.em_andamento || 0;
+                completedCountEl.textContent = stats.concluido || 0;
+                
+                populateAreaFilter();
+                render();
+                updateApiStatus(true);
             } catch (error) {
-                console.error("Erro ao buscar dados:", error);
-                requestsGrid.innerHTML = `<p>Erro ao carregar dados. Verifique a conexão com a API.</p>`;
+                console.error('Erro ao carregar dados:', error);
+                updateApiStatus(false);
+            } finally {
+                toggleLoading(false);
             }
-        }
+        };
 
-        // Função para renderizar os cards na tela
-        function renderRequests() {
-            const filteredRequests = filterRequests();
-            requestsGrid.innerHTML = '';
-
-            if (filteredRequests.length === 0) {
-                requestsGrid.innerHTML = `<p>Nenhuma solicitação encontrada para os filtros selecionados.</p>`;
-                return;
-            }
-
-            filteredRequests.forEach(req => {
-                const card = document.createElement('div');
-                card.className = 'request-card';
-                card.dataset.id = req.emp_id;
-
-                const statusClass = `status-${req.status.replace(/_/g, '-')}`;
-                const inicio = req.inicio_atendimento ? new Date(req.inicio_atendimento).toLocaleString('pt-BR') : '---';
-                const conclusao = req.conclusao_atendimento ? new Date(req.conclusao_atendimento).toLocaleString('pt-BR') : '---';
-
-                card.innerHTML = `
-                    <div class="card-header ${statusClass}">
-                        <div>
-                            <div class="card-id">${req.emp_id}</div>
-                            <div class="card-timestamp">${new Date(req.timestamp).toLocaleString('pt-BR')}</div>
-                        </div>
-                        ${req.status === 'concluido' ? `<div class="card-status-badge ${statusClass}">✓ Concluído</div>` : ''}
-                    </div>
-                    <div class="card-body">
-                        <div class="info-item"><div class="info-label">SOLICITANTE</div><div class="info-value">${req.solicitante || 'N/A'}</div></div>
-                        <div class="info-item"><div class="info-label">ÁREA</div><div class="info-value">${req.area_solicitante || 'N/A'}</div></div>
-                        <div class="info-item"><div class="info-label">OPERAÇÃO</div><div class="info-value">${req.tipo_operacao || 'N/A'}</div></div>
-                        <div class="info-item"><div class="info-label">ITEM</div><div class="info-value">${req.codigo_item || 'N/A'}</div></div>
-                        <div class="info-item"><div class="info-label">INÍCIO</div><div class="info-value">${inicio}</div></div>
-                        <div class="info-item"><div class="info-label">CONCLUSÃO</div><div class="info-value">${conclusao}</div></div>
-                        ${req.observacao ? `<div class="info-item full-width"><div class="info-label">OBSERVAÇÃO</div><div class="info-value">${req.observacao.replace(/\n/g, '<br>')}</div></div>` : ''}
-                    </div>
-                    <div class="card-footer">
-                        ${req.status === 'pendente' ? `<button class="action-btn btn-iniciar" onclick="updateRequestStatus('${req.emp_id}', 'em-andamento')">▶ Iniciar Atendimento</button>` : ''}
-                        ${req.status === 'em-andamento' ? `<button class="action-btn btn-concluir" onclick="updateRequestStatus('${req.emp_id}', 'concluido')">✓ Concluir Atendimento</button>` : ''}
-                    </div>
-                `;
-                requestsGrid.appendChild(card);
+        const populateAreaFilter = () => {
+            const currentSelected = areaFilter.value;
+            const areas = [...new Set(allRequests.map(r => r.area_solicitante).filter(Boolean))];
+            areaFilter.innerHTML = '<option value="todos">Todas as Áreas</option>';
+            areas.sort().forEach(area => {
+                const option = document.createElement('option');
+                option.value = area;
+                option.textContent = area;
+                areaFilter.appendChild(option);
             });
-        }
-        
-        // Função para atualizar status
-        window.updateRequestStatus = async function(id, newStatus) {
-            const body = { status: newStatus };
+            areaFilter.value = currentSelected;
+        };
 
+        const render = () => {
+            const filteredRequests = filterRequests();
+            
+            emptyState.style.display = filteredRequests.length === 0 ? 'block' : 'none';
+            requestsList.style.display = filteredRequests.length > 0 ? 'grid' : 'none';
+            
+            requestsList.innerHTML = filteredRequests.map(req => createRequestCard(req)).join('');
+        };
+
+        const filterRequests = () => {
+            return allRequests.filter(req => {
+                const statusMatch = statusFilter.value === 'todos' || req.status === statusFilter.value;
+                const areaMatch = areaFilter.value === 'todos' || req.area_solicitante === areaFilter.value;
+                let dateMatch = true;
+                if (dateFilter.value) {
+                    const reqDate = new Date(req.timestamp).toISOString().slice(0, 10);
+                    dateMatch = reqDate === dateFilter.value;
+                }
+                return statusMatch && areaMatch && dateMatch;
+            });
+        };
+
+        const createRequestCard = (req) => {
+            const statusClass = `status-${req.status}`;
+            const priorityText = req.tempo_atendimento || 'Normal';
+            const priorityClass = priorityText.includes('Urgente') ? 'pendente' : (priorityText.includes('Moderado') ? 'em-andamento' : '');
+            const inicio = req.inicio_atendimento ? new Date(req.inicio_atendimento).toLocaleString('pt-BR') : '---';
+            const conclusao = req.conclusao_atendimento ? new Date(req.conclusao_atendimento).toLocaleString('pt-BR') : '---';
+
+            return `
+                <div class="request-card ${statusClass}">
+                    <div class="request-header">
+                        <div>
+                            <div class="request-id">${req.emp_id}</div>
+                            <div class="request-timestamp">${new Date(req.timestamp).toLocaleString('pt-BR')}</div>
+                        </div>
+                        <div class="priority-tag ${req.status}">${req.status.replace('-', ' ')}</div>
+                    </div>
+                    
+                    <div class="request-details">
+                        <div class="detail-item"><span class="detail-label">Solicitante</span><span class="detail-value">${req.solicitante}</span></div>
+                        <div class="detail-item"><span class="detail-label">Área</span><span class="detail-value">${req.area_solicitante}</span></div>
+                        <div class="detail-item"><span class="detail-label">Operação</span><span class="detail-value">${req.tipo_operacao}</span></div>
+                        <div class="detail-item"><span class="detail-label">Item</span><span class="detail-value">${req.codigo_item}</span></div>
+                        ${req.localizacao ? `<div class="detail-item"><span class="detail-label">Localização</span><span class="detail-value">${req.localizacao}</span></div>` : ''}
+                        ${req.observacao ? `<div class="detail-item full-width"><span class="detail-label">Observação</span><span class="detail-value">${req.observacao}</span></div>` : ''}
+                        <div class="detail-item"><span class="detail-label">Início</span><span class="detail-value">${inicio}</span></div>
+                        <div class="detail-item"><span class="detail-label">Conclusão</span><span class="detail-value">${conclusao}</span></div>
+                    </div>
+                    
+                    <div class="card-actions">
+                        ${req.status === 'pendente' ? `<button class="btn btn-primary" onclick="updateRequest('${req.emp_id}', 'em-andamento')">▶️ Iniciar</button>` : ''}
+                        ${req.status === 'em-andamento' ? `<button class="btn btn-success" onclick="updateRequest('${req.emp_id}', 'concluido')">✅ Concluir</button>` : ''}
+                    </div>
+                </div>
+            `;
+        };
+
+        window.updateRequest = async (empId, newStatus) => {
+            toggleLoading(true);
             try {
-                const response = await fetch(`${API_BASE_URL}/requests/${id}`, {
+                const response = await fetch(`${API_BASE_URL}/requests/${empId}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body)
+                    body: JSON.stringify({ status: newStatus })
                 });
-                if (!response.ok) throw new Error('Falha ao atualizar o status');
-                await fetchData(); // Recarrega os dados para refletir a mudança
+                
+                if (!response.ok) throw new Error('Erro ao atualizar');
+                
+                await fetchData(); // Recarrega tudo para ter os dados mais recentes
             } catch (error) {
-                console.error("Erro ao atualizar status:", error);
-                alert('Não foi possível atualizar o status da solicitação.');
+                console.error('Erro ao atualizar solicitação:', error);
+            } finally {
+                toggleLoading(false);
             }
-        }
-        
-        // Funções de filtro e estatísticas
-        function filterRequests() {
-            const status = statusFilter.value;
-            const date = dateFilter.value;
-            return allRequests.filter(req => {
-                const statusMatch = status === 'todos' || req.status === status;
-                const dateMatch = !date || new Date(req.timestamp).toISOString().slice(0, 10) === date;
-                return statusMatch && dateMatch;
-            });
-        }
+        };
 
-        function updateStats(stats) {
-            if (!stats) return;
-            document.getElementById('count-pendente').textContent = stats.pendente || 0;
-            document.getElementById('count-andamento').textContent = stats.em_andamento || 0;
-            document.getElementById('count-concluido').textContent = stats.concluido || 0;
-        }
-
-        // Event Listeners
-        statusFilter.addEventListener('change', renderRequests);
-        dateFilter.addEventListener('change', renderRequests);
-        refreshToggle.addEventListener('click', () => {
-            refreshToggle.classList.toggle('active');
-            if (refreshToggle.classList.contains('active')) {
-                autoRefreshInterval = setInterval(fetchData, 5000); // Atualiza a cada 5 segundos
-            } else {
-                clearInterval(autoRefreshInterval);
-            }
+        [statusFilter, areaFilter, dateFilter].forEach(filter => {
+            filter.addEventListener('change', render);
         });
+        refreshBtn.addEventListener('click', fetchData);
 
-        // Carga inicial
-        fetchData();
+        setInterval(fetchData, 30000); // Auto-refresh a cada 30 segundos
+        fetchData(); // Carga inicial
     });
     </script>
 </body>
