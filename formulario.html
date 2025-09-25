@@ -9,39 +9,33 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --primary-color: #4285f4; --secondary-color: #34a853; --danger-color: #ea4335;
-            --warning-color: #fbbc04; --background: #f8f9fa; --card-background: #ffffff;
+            --background: #f8f9fa; --card-background: #ffffff;
             --text-primary: #202124; --text-secondary: #5f6368; --border-color: #dadce0;
             --shadow: 0 1px 3px rgba(60,64,67,0.3); --border-radius: 8px;
         }
         body { font-family: 'Google Sans', 'Roboto', sans-serif; background: var(--background); color: var(--text-primary); line-height: 1.6; }
         .container { max-width: 640px; margin: 20px auto; padding: 20px; }
-        .header { background: linear-gradient(135deg, #4285f4 0%, #34a853 100%); color: white; padding: 40px 30px; border-radius: var(--border-radius) var(--border-radius) 0 0; text-align: center; position: relative; overflow: hidden; }
-        .header h1 { font-size: 2.5rem; font-weight: 400; margin-bottom: 10px; }
-        .header p { font-size: 1.1rem; opacity: 0.9; }
+        .header { background: linear-gradient(135deg, #4285f4 0%, #34a853 100%); color: white; padding: 40px 30px; border-radius: var(--border-radius) var(--border-radius) 0 0; text-align: center; }
+        .header h1 { font-size: 2.5rem; font-weight: 400; }
         .form-container { background: var(--card-background); border-radius: 0 0 var(--border-radius) var(--border-radius); box-shadow: var(--shadow); padding: 30px; }
         .required-note { color: var(--danger-color); font-size: 0.9rem; margin-bottom: 30px; }
         .form-group { margin-bottom: 30px; }
-        .form-label { display: flex; align-items: center; gap: 8px; font-size: 1rem; font-weight: 500; color: var(--text-primary); margin-bottom: 12px; }
+        .form-label { display: flex; align-items: center; gap: 8px; font-size: 1rem; font-weight: 500; margin-bottom: 12px; }
         .form-label .required { color: var(--danger-color); }
-        .form-input, textarea { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--border-radius); font-size: 1rem; transition: all 0.3s ease; background: var(--card-background); font-family: inherit; }
-        .form-input:focus, textarea:focus { outline: none; border-color: var(--primary-color); }
+        .form-input, textarea { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--border-radius); font-size: 1rem; font-family: inherit; }
         textarea { resize: vertical; min-height: 80px; }
         .radio-group { display: grid; gap: 12px; }
-        .radio-option { display: flex; align-items: center; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--border-radius); cursor: pointer; transition: all 0.3s ease; }
-        .radio-option:hover { border-color: var(--primary-color); background: rgba(66, 133, 244, 0.05); }
-        .radio-option.selected { border-color: var(--primary-color); background: rgba(66, 133, 244, 0.1); }
+        .radio-option { display: flex; align-items: center; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--border-radius); cursor: pointer; }
+        .radio-option.selected { border-color: var(--primary-color); }
         .radio-option input[type="radio"] { margin-right: 12px; }
-        .radio-option label { cursor: pointer; font-size: 1rem; display: flex; align-items: center; gap: 8px; width: 100%; }
-        .submit-btn { background: var(--primary-color); color: white; border: none; padding: 16px 32px; border-radius: var(--border-radius); font-size: 1.1rem; font-weight: 500; cursor: pointer; width: 100%; margin-top: 20px; }
+        .radio-option label { cursor: pointer; display: flex; align-items: center; gap: 8px; width: 100%; }
+        .submit-btn { background: var(--primary-color); color: white; border: none; padding: 16px 32px; border-radius: var(--border-radius); font-size: 1.1rem; cursor: pointer; width: 100%; }
         .success-message, .loading { display: none; text-align: center; padding: 20px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>Solicitação de Empilhadeira</h1>
-            <p>Sistema Integrado de Atendimento</p>
-        </div>
+        <div class="header"><h1>Solicitação de Empilhadeira</h1></div>
         <div class="form-container">
             <p class="required-note">* Indica pergunta obrigatória</p>
             <form id="requestForm">
@@ -49,28 +43,31 @@
                 <div class="form-group">
                     <label class="form-label">🏢 Área Solicitante <span class="required">*</span></label>
                     <div class="radio-group">
-                         <div class="radio-option"><input type="radio" id="area1" name="area_solicitante" value="🏭Injeção de Alumínio" required><label for="area1">🏭 Injeção de Alumínio</label></div>
-                         <div class="radio-option"><input type="radio" id="area2" name="area_solicitante" value="🧪Injeção PPS" required><label for="area2">🧪 Injeção PPS</label></div>
-                         <div class="radio-option"><input type="radio" id="area3" name="area_solicitante" value="🚚Logística" required><label for="area3">🚚 Logística</label></div>
-                         <div class="radio-option"><input type="radio" id="area4" name="area_solicitante" value="🛠️Montagem Manual" required><label for="area4">🛠️ Montagem Manual</label></div>
-                         <div class="radio-option"><input type="radio" id="area5" name="area_solicitante" value="🤖Montagem Automatizada" required><label for="area5">🤖 Montagem Automatizada</label></div>
-                         <div class="radio-option"><input type="radio" id="area6" name="area_solicitante" value="🔧Manutenção INJ" required><label for="area6">🔧 Manutenção INJ</label></div>
-                         <div class="radio-option"><input type="radio" id="area7" name="area_solicitante" value="🔩Torno" required><label for="area7">🔩 Torno</label></div>
-                         <div class="radio-option"><input type="radio" id="area8" name="area_solicitante" value="⚙️Usinagem" required><label for="area8">⚙️ Usinagem</label></div>
-                         <div class="radio-option"><input type="radio" id="area9" name="area_solicitante" value="⭐Qualidade" required><label for="area9">⭐ Qualidade</label></div>
+                         <div class="radio-option"><input type="radio" name="area_solicitante" value="🏭Injeção de Alumínio" required><label>🏭 Injeção de Alumínio</label></div>
+                         <div class="radio-option"><input type="radio" name="area_solicitante" value="🧪Injeção PPS" required><label>🧪 Injeção PPS</label></div>
+                         <div class="radio-option"><input type="radio" name="area_solicitante" value="🚚Logística" required><label>🚚 Logística</label></div>
+                         <div class="radio-option"><input type="radio" name="area_solicitante" value="⭐Qualidade" required><label>⭐ Qualidade</label></div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">📋 Tipo de Operação <span class="required">*</span></label>
                     <div class="radio-group">
-                        <div class="radio-option"><input type="radio" id="op1" name="tipo_operacao" value="🟠Entrega" required><label for="op1">📦 Entrega</label></div>
-                        <div class="radio-option"><input type="radio" id="op2" name="tipo_operacao" value="🔵Guarda" required><label for="op2">🔒 Guarda</label></div>
-                        <div class="radio-option"><input type="radio" id="op3" name="tipo_operacao" value="✅Validação" required><label for="op3">✔️ Validação</label></div>
+                        <div class="radio-option"><input type="radio" name="tipo_operacao" value="🟠Entrega" required><label>📦 Entrega</label></div>
+                        <div class="radio-option"><input type="radio" name="tipo_operacao" value="🔵Guarda" required><label>🔒 Guarda</label></div>
+                        <div class="radio-option"><input type="radio" name="tipo_operacao" value="✅Validação" required><label>✔️ Validação</label></div>
                     </div>
                 </div>
                 <div class="form-group"><label class="form-label">🏷️ Código do Item <span class="required">*</span></label><input type="text" id="codigo_item" name="codigo_item" class="form-input" required></div>
                 <div class="form-group"><label class="form-label">📍 Localização (opcional)</label><input type="text" id="localizacao" name="localizacao" class="form-input"></div>
                 <div class="form-group"><label class="form-label">🗨️ Observação (opcional)</label><textarea id="observacao" name="observacao" class="form-input"></textarea></div>
+                <div class="form-group">
+                    <label class="form-label">⏱️ Tempo de Atendimento <span class="required">*</span></label>
+                    <div class="radio-group" id="tempo-group">
+                        <div class="radio-option"><input type="radio" name="tempo_atendimento" value="🚨00:15 (Urgente)" required><label>🚨 00:15 (Urgente)</label></div>
+                        <div class="radio-option"><input type="radio" name="tempo_atendimento" value="🟡00:30 (Moderado)" required><label>🟡 00:30 (Moderado)</label></div>
+                        <div class="radio-option"><input type="radio" name="tempo_atendimento" value="🟢01:00 (Normal)" required><label>🟢 01:00 (Normal)</label></div>
+                    </div>
+                </div>
                 <button type="submit" class="submit-btn">Enviar Solicitação</button>
             </form>
             <div class="loading" id="loading"><p>Enviando...</p></div>
@@ -80,12 +77,14 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.radio-option').forEach(option => {
-                option.addEventListener('click', () => {
-                    const radio = option.querySelector('input[type="radio"]');
-                    const group = option.closest('.radio-group');
-                    group.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('selected'));
-                    radio.checked = true;
-                    option.classList.add('selected');
+                option.addEventListener('click', (e) => {
+                    const radio = e.currentTarget.querySelector('input[type="radio"]');
+                    if (radio) {
+                        radio.checked = true;
+                        const group = e.currentTarget.closest('.radio-group');
+                        group.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('selected'));
+                        e.currentTarget.classList.add('selected');
+                    }
                 });
             });
 
@@ -100,7 +99,8 @@
                     tipo_operacao: document.querySelector('input[name="tipo_operacao"]:checked')?.value || '',
                     codigo_item: document.getElementById('codigo_item').value,
                     localizacao: document.getElementById('localizacao').value,
-                    observacao: document.getElementById('observacao').value
+                    observacao: document.getElementById('observacao').value,
+                    tempo_atendimento: document.querySelector('input[name="tempo_atendimento"]:checked')?.value || ''
                 };
 
                 try {
